@@ -74,6 +74,7 @@ class Nav_Menu_Custom_Attributes {
 		$this->plugin_name = 'nav-menu-custom-attributes';
 
 		$this->load_dependencies();
+		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
 	}
@@ -84,7 +85,6 @@ class Nav_Menu_Custom_Attributes {
 	 * Include the following files that make up the plugin:
 	 *
 	 * - Nav_Menu_Custom_Attributes_Loader. Orchestrates the hooks of the plugin.
-	 * - Nav_Menu_Custom_Attributes_i18n. Defines internationalization functionality.
 	 * - Nav_Menu_Custom_Attributes_Admin. Defines all hooks for the admin area.
 	 * - Nav_Menu_Custom_Attributes_Public. Defines all hooks for the public side of the site.
 	 *
@@ -103,6 +103,11 @@ class Nav_Menu_Custom_Attributes {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-nav-menu-custom-attributes-loader.php';
 
 		/**
+		 * The class responsible for defining all actions that occur in the admin area.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-nav-menu-custom-attributes-admin.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
@@ -110,21 +115,22 @@ class Nav_Menu_Custom_Attributes {
 
 		$this->loader = new Nav_Menu_Custom_Attributes_Loader();
 
-		/**
-		 * The class responsible for add custom attributes in nav menu.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-custom-menu-attribute-options.php';
+	}
 
-		$custom_menu_attibutes = new Custom_Menu_Attribute_Options();
-		add_action( 'init', array( $custom_menu_attibutes, 'setup_custom_fields' ) );
-		add_filter(
-			'wp_edit_nav_menu_walker',
-			function () {
-				return 'Custom_Menu_Attribute_Options';
-			}
-		);
-		add_filter( 'manage_nav-menus_columns', array( $custom_menu_attibutes, 'insert_custom_screen_options' ), 20 );
+	/**
+	 * Register all of the hooks related to the admin area functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_admin_hooks() {
 
+		$plugin_admin = new Nav_Menu_Custom_Attributes_Admin();
+
+		$this->loader->add_action( 'init', $plugin_admin, 'setup_custom_fields' );
+		$this->loader->add_filter( 'wp_edit_nav_menu_walker', $plugin_admin, 'wp_edit_nav_menu_walker_callback' );
+		$this->loader->add_filter( 'manage_nav-menus_columns', $plugin_admin, 'insert_custom_screen_options', 20 );
 	}
 
 	/**

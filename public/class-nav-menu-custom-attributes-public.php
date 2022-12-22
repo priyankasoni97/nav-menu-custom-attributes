@@ -62,13 +62,18 @@ class Nav_Menu_Custom_Attributes_Public {
 	 */
 	public function nav_menu_link_attributes_callback( $atts, $item, $args ) {
 		$custom_attributes = get_post_meta( $item->ID, '_menu_item_custom_attributes', true );
-		$attributes        = explode( ',', $custom_attributes );
-		foreach ( $attributes as $attribute ) {
-			$attribute_key          = explode( '-', $attribute )[0];
-			$attribute_value        = explode( '-', $attribute )[1];
-			$attribute_key          = str_replace( ':', '-', $attribute_key );
-			$atts[ $attribute_key ] = $attribute_value;
+
+		// Check if custom attributes is not empty.
+		if ( ! empty( $custom_attributes ) ) {
+			$attributes = explode( ',', $custom_attributes );
+			foreach ( $attributes as $attribute ) {
+				$attribute_key          = explode( '-', $attribute )[0];
+				$attribute_value        = explode( '-', $attribute )[1];
+				$attribute_key          = str_replace( ':', '-', $attribute_key );
+				$atts[ $attribute_key ] = $attribute_value;
+			}
 		}
+
 		return $atts;
 	}
 
